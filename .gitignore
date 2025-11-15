@@ -1,0 +1,40 @@
+# dependencies
+/Ecart/node_modules/
+
+# Expo
+/Ecart/.expo/
+/Ecart/dist/
+/Ecart/web-build/
+/Ecart/expo-env.d.ts
+
+# Native
+/Ecart/.kotlin/
+/Ecart/*.orig.*
+/Ecart/*.jks
+/Ecart/*.p8
+/Ecart/*.p12
+/Ecart/*.key
+/Ecart/*.mobileprovision
+
+# Metro
+/Ecart/.metro-health-check*
+
+# debug
+/Ecart/npm-debug.*
+/Ecart/yarn-debug.*
+/Ecart/yarn-error.*
+
+# macOS
+.DS_Store
+/Ecart/.DS_Store
+/Ecart/*.pem
+
+# local env files
+/Ecart/.env*.local
+
+# typescript
+/Ecart/*.tsbuildinfo
+
+# generated native folders
+/Ecart/ios
+/Ecart/android
