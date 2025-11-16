@@ -14,4 +14,12 @@ interface Cart {
   quantity: number;
 }
 
-export { Product, Cart };
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  hash: string;
+  mobile: string;
+}
+
+export { Product, Cart, User };

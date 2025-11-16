@@ -26,12 +26,11 @@ const schema = yup
   })
   .required();
 
-type FormData = yup.InferType<typeof schema>;
 type Nav = StackNavigationProp<RootStackParamList>;
 
 const SignInScreen = () => {
   const navigation = useNavigation<Nav>();
-  const { control, handleSubmit } = useForm<FormData>({
+  const { control, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -55,13 +54,13 @@ const SignInScreen = () => {
     <View style={styles.container}>
       <Image source={IMAGES.appLogo} style={styles.logo} />
 
-      <AppTextInputController<FormData>
+      <AppTextInputController
         control={control}
         name="email"
         placeholder="Email"
         keyboardType="email-address"
       />
-      <AppTextInputController<FormData>
+      <AppTextInputController
         control={control}
         name="password"
         placeholder="Password"

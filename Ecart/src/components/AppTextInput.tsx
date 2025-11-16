@@ -67,6 +67,9 @@ export const AppTextInputController = <T extends FieldValues>({
             keyboardType={keyboardType}
             customStyles={error && styles.errorInput}
           />
+          {error?.message === 'Passwords must match' && error && (
+            <AppText style={{ color: colors.red }}>{error.message}</AppText>
+          )}
         </>
       )}
     />
