@@ -6,7 +6,7 @@ export default class User extends Realm.Object {
   id!: Realm.BSON.ObjectId;
   name!: string;
   email!: string;
-  hash!: string;
+  password!: string;
   mobile!: string;
 
   static schema = {
@@ -16,30 +16,37 @@ export default class User extends Realm.Object {
       id: 'objectId',
       name: 'string',
       email: 'string',
-      hash: 'string',
+      password: 'string',
       mobile: 'string',
     },
   };
 }
 
-export const createUser = async ({ name, email, hash, mobile }: UserType) => {
+export const createUser = async ({ name, email, password, mobile }: UserType) => {
   const realm = await openRealm();
 
   try {
-    let newUser;
+    const existingUser = realm.objects(User.schema.name).filtered("email == $0 OR mobile == $1", email, mobile)
+
+    if (existingUser.length > 0) {
+      return 409;
+    }
+
     realm.write(() => {
-      newUser = realm.create(User.schema.name, {
+        realm.create(User.schema.name, {
         id: new Realm.BSON.ObjectId(),
         name,
         email,
-        hash,
+        password,
         mobile,
       });
     });
 
-    return newUser;
+    return 201;
+
   } catch (e) {
-    console.error('Error creating user:', e);
+    console.error("Error creating user:", e);
+    return '';
   } finally {
     realm.close();
   }

@@ -14,7 +14,8 @@
       "@utils/*": ["utils/*"],
       "@store/*": ["store/*"],
       "@styles/*": ["styles/*"],
-      "@types/*": ["types/*"]
+      "@types/*": ["types/*"],
+      "@database/*": ["database/*"]
     }
   },
   "include": ["src"],

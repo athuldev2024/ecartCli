@@ -11,7 +11,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-// import { createUser } from '@database/schema/User';
+import { createUser } from '@database/schema/User';
+import Toast from 'react-native-toast-message';
 
 export const IMAGES = {
   appLogo: require('../assets/images/app-logo.png'),
@@ -51,24 +52,34 @@ const SignUpScreen = () => {
   });
 
   const signUpClicked = async (data: SignUpFormData) => {
-    // const user = await createUser(data);
+    const userData = {name: data.fullName, email: data.email, mobile: data.mobile, password: data.password};
 
-    console.log('++++++++++++++++++++++++++++++++++++');
-    console.log('User created:', user);
-    console.log('++++++++++++++++++++++++++++++++++++');
+    const status = await createUser(userData);
 
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'MainAppBottomTabs',
-          params: {
-            screen: 'HomeScreen',
-            params: { userId },
+    if (status === 201) {
+      Toast.show({
+        type: 'success',
+        text1: 'User created',
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'MainAppBottomTabs',
+            params: {
+              screen: 'HomeScreen',
+              params: { userId },
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
+    } else if (status === 409) {
+      Toast.show({
+        type: 'info',
+        text1: 'User already exists',
+      });
+    }
   };
 
   return (

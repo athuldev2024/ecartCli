@@ -11,6 +11,7 @@ import colors from '@styles/colors';
 import { isAndroid } from '@utils/platform-utils';
 import { NavigationContainer } from '@react-navigation/native';
 import MainAppStack from '@navigation/MainAppStack';
+import Toast from 'react-native-toast-message';
 
 function AppInner() {
   const insets = useSafeAreaInsets();
@@ -21,6 +22,7 @@ function AppInner() {
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <MainAppStack />
       </SafeAreaView>
+      <Toast />
     </>
   );
 }
