@@ -1,5 +1,5 @@
 import { StyleSheet, View, Image } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { sharedPaddingHorizontal } from '@styles/sharedStyles';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { AppTextInputController } from '@components/AppTextInput';
@@ -13,6 +13,8 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getUserByCredentials } from '@database/schema/User';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@navigation/MainAppStack';
 
 export const IMAGES = {
   appLogo: require('../assets/images/app-logo.png'),
@@ -20,7 +22,10 @@ export const IMAGES = {
 
 const schema = yup
   .object({
-    email: yup.string().email('Please enter a valid email').required('Email is required'),
+    email: yup
+      .string()
+      .email('Please enter a valid email')
+      .required('Email is required'),
     password: yup
       .string()
       .required('Password is required')
@@ -31,14 +36,28 @@ const schema = yup
 type Nav = StackNavigationProp<RootStackParamList>;
 
 const SignInScreen = () => {
+  const { login } = useAuth();
   const navigation = useNavigation<Nav>();
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
 
-const signInClicked = async (data: { email: string; password: string }) => {
+  useEffect(() => {
+    const loadUserID = async () => {
+      try {
+        const userID = await AsyncStorage.getItem('userID');
+        console.log('userID:', userID);
+      } catch (e) {
+        console.error('Failed to load userID', e);
+      }
+    };
+
+    loadUserID();
+  }, []);
+
+  const signInClicked = async (data: { email: string; password: string }) => {
     const user = await getUserByCredentials(data.email, data.password);
-    
+
     if (user === null) {
       Toast.show({
         type: 'error',
@@ -47,18 +66,8 @@ const signInClicked = async (data: { email: string; password: string }) => {
       return;
     }
 
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'MainAppBottomTabs',
-          params: {
-            screen: 'HomeScreen',
-            params: { userId: user.id },
-          },
-        },
-      ],
-    });
+    await AsyncStorage.setItem('userID', String(user.id));
+    await login(String(user.id));
   };
 
   return (
@@ -78,12 +87,18 @@ const signInClicked = async (data: { email: string; password: string }) => {
         secureTextEntry
       />
 
-      <AppButton title="Login" type={'primary'} onPress={handleSubmit(signInClicked)} />
+      <AppButton
+        title="Login"
+        type={'primary'}
+        onPress={handleSubmit(signInClicked)}
+      />
       <AppButton
         title="Sign Up"
         type={'secondary'}
         customStyles={styles.registerButton}
-        onPress={() => navigation.navigate('AuthStack', { screen: 'SignUpScreen' })}
+        onPress={() =>
+          navigation.navigate('AuthStack', { screen: 'SignUpScreen' })
+        }
       />
     </View>
   );

@@ -8,6 +8,8 @@ export default class User extends Realm.Object {
   email!: string;
   password!: string;
   mobile!: string;
+  dob!: Date; 
+  gender!: 'male' | 'female' | 'other'; 
 
   static schema = {
     name: 'User',
@@ -18,35 +20,41 @@ export default class User extends Realm.Object {
       email: 'string',
       password: 'string',
       mobile: 'string',
+      dob: 'date',     
+      gender: 'string', 
     },
   };
 }
 
-export const createUser = async ({ name, email, password, mobile }: UserType) => {
+export const createUser = async ({ name, email, password, mobile, dob, gender }: UserType) => {
   const realm = await openRealm();
 
   try {
     const existingUser = realm.objects(User.schema.name).filtered("email == $0 OR mobile == $1", email, mobile)
 
     if (existingUser.length > 0) {
-      return 409;
+      return {code: 409};
     }
+
+    const id = new Realm.BSON.ObjectId();
 
     realm.write(() => {
         realm.create(User.schema.name, {
-        id: new Realm.BSON.ObjectId(),
+        id,
         name,
         email,
         password,
         mobile,
+        dob,
+        gender
       });
     });
 
-    return 201;
+    return {code: 201, id};
 
   } catch (e) {
     console.error("Error creating user:", e);
-    return '';
+    return {status: 500};
   } finally {
     realm.close();
   }
@@ -74,6 +82,8 @@ export const getUserByCredentials = async (
       name: user.name,
       email: user.email,
       mobile: user.mobile,
+      gender: user.gender,
+      dob: user.dob,
     };
   } catch (e) {
     console.error('Error fetching user:', e);

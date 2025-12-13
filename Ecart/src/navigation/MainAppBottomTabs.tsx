@@ -31,7 +31,9 @@ export default function MainAppBottomTabs() {
           name="HomeScreen"
           component={HomeScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
             title: 'Home',
           }}
         />
@@ -39,7 +41,9 @@ export default function MainAppBottomTabs() {
           name="CartScreen"
           component={CartScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <Ionicons name="cart" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="cart" size={size} color={color} />
+            ),
             title: 'Cart',
           }}
         />
@@ -47,7 +51,9 @@ export default function MainAppBottomTabs() {
           name="ProfileScreen"
           component={ProfileScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
             title: 'Profile',
           }}
         />

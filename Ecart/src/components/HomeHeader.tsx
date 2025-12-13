@@ -3,34 +3,28 @@ import React from 'react';
 import colors from '@styles/colors';
 import { scale, verticalScale } from 'react-native-size-matters';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '@navigation/type';
-import { StackNavigationProp } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@navigation/MainAppStack';
 
 export const IMAGES = {
   appLogo: require('../assets/images/app-logo.png'),
 };
 
-type Nav = StackNavigationProp<RootStackParamList>;
-
 export default function HomeHeader() {
-  const navigation = useNavigation<Nav>();
+  const { logout } = useAuth();
 
-  const logOutHandler = () => {
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'AuthStack',
-        },
-      ],
-    });
+  const logOutHandler = async () => {
+    await AsyncStorage.removeItem('userID');
+    await logout();
   };
 
   return (
     <View style={styles.container}>
       <Image source={IMAGES.appLogo} style={styles.logo} />
-      <Pressable onPress={logOutHandler} style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
+      <Pressable
+        onPress={logOutHandler}
+        style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+      >
         <AntDesign name="logout" size={scale(26)} color="white" />
       </Pressable>
     </View>

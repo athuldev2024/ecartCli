@@ -26,7 +26,8 @@ export default function AppTextInput({
   return (
     <TextInput
       value={value}
-      onChangeText={onChangeText}
+      onChangeText={text => onChangeText(text.toLowerCase())}
+      autoCapitalize="none"
       placeholder={placeholder}
       secureTextEntry={secureTextEntry}
       keyboardType={keyboardType}

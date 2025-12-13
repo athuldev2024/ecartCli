@@ -13,6 +13,10 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { createUser } from '@database/schema/User';
 import Toast from 'react-native-toast-message';
+import { AppDatePickerController } from '@components/AppDatePicker';
+import { AppGenderRadioController } from '@components/AppGenderRadio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@navigation/MainAppStack';
 
 export const IMAGES = {
   appLogo: require('../assets/images/app-logo.png'),
@@ -25,7 +29,10 @@ const schema = yup
       .required('Full name is required')
       .min(3, 'Full name must be at least 3 characters long'),
 
-    email: yup.string().email('Please enter a valid email').required('Email is required'),
+    email: yup
+      .string()
+      .email('Please enter a valid email')
+      .required('Email is required'),
     password: yup
       .string()
       .required('Password is required')
@@ -38,6 +45,11 @@ const schema = yup
       .string()
       .required('Phone number is required')
       .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
+    dob: yup.date().required('Date of birth is required'),
+    gender: yup
+      .string()
+      .oneOf(['male', 'female', 'other'])
+      .required('Gender is required'),
   })
   .required();
 
@@ -45,36 +57,34 @@ type SignUpFormData = yup.InferType<typeof schema>;
 type Nav = StackNavigationProp<RootStackParamList>;
 
 const SignUpScreen = () => {
-  const userId = 101; // Dummy user ID
+  const { login } = useAuth();
   const navigation = useNavigation<Nav>();
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
 
   const signUpClicked = async (data: SignUpFormData) => {
-    const userData = {name: data.fullName, email: data.email, mobile: data.mobile, password: data.password};
+    const userData = {
+      name: data.fullName,
+      email: data.email,
+      mobile: data.mobile,
+      password: data.password,
+      dob: data.dob,
+      gender: data.gender,
+    };
 
     const status = await createUser(userData);
 
-    if (status === 201) {
+    if (status.code === 201 && status?.id) {
+      await AsyncStorage.setItem('userID', String(status?.id));
+
       Toast.show({
         type: 'success',
         text1: 'User created',
       });
 
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'MainAppBottomTabs',
-            params: {
-              screen: 'HomeScreen',
-              params: { userId },
-            },
-          },
-        ],
-      });
-    } else if (status === 409) {
+      await login(String(status?.id));
+    } else if (status.code === 409) {
       Toast.show({
         type: 'info',
         text1: 'User already exists',
@@ -85,7 +95,11 @@ const SignUpScreen = () => {
   return (
     <View style={styles.container}>
       <Image source={IMAGES.appLogo} style={styles.logo} />
-      <AppTextInputController control={control} name="fullName" placeholder="Full name" />
+      <AppTextInputController
+        control={control}
+        name="fullName"
+        placeholder="Full name"
+      />
       <AppTextInputController
         control={control}
         name="email"
@@ -110,13 +124,26 @@ const SignUpScreen = () => {
         placeholder="Mobile number"
         keyboardType="numeric"
       />
+      <AppDatePickerController
+        control={control}
+        name="dob"
+        placeholder="Date of Birth"
+      />
+      <AppGenderRadioController control={control} name="gender" />
 
-      <AppButton title="Register" type={'primary'} onPress={handleSubmit(signUpClicked)} />
+      <AppButton
+        title="Register"
+        type={'primary'}
+        customStyles={{ marginTop: scale(20) }}
+        onPress={handleSubmit(signUpClicked)}
+      />
       <AppButton
         title="Sign In"
         type={'secondary'}
         customStyles={styles.registerButton}
-        onPress={() => navigation.navigate('AuthStack', { screen: 'SignInScreen' })}
+        onPress={() =>
+          navigation.navigate('AuthStack', { screen: 'SignInScreen' })
+        }
       />
     </View>
   );
@@ -144,7 +171,7 @@ const styles = StyleSheet.create({
   registerButton: {
     backgroundColor: colors.white,
     borderWidth: 1,
-    marginTop: verticalScale(15),
+    marginTop: verticalScale(6),
     borderColor: colors.black,
   },
 });
