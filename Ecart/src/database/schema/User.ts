@@ -51,3 +51,34 @@ export const createUser = async ({ name, email, password, mobile }: UserType) =>
     realm.close();
   }
 };
+
+export const getUserByCredentials = async (
+  email: string,
+  password: string,
+) => {
+  const realm = await openRealm();
+
+  try {
+    const users = realm
+      .objects<User>(User.schema.name)
+      .filtered('email == $0 AND password == $1', email, password);
+
+    if (users.length === 0) {
+      return null;
+    }
+
+    const user = users[0];
+
+    return {
+      id: user.id.toHexString(),
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+    };
+  } catch (e) {
+    console.error('Error fetching user:', e);
+    return null;
+  } finally {
+    realm.close();
+  }
+};

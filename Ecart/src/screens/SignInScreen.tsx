@@ -1,5 +1,5 @@
 import { StyleSheet, View, Image } from 'react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import { sharedPaddingHorizontal } from '@styles/sharedStyles';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { AppTextInputController } from '@components/AppTextInput';
@@ -11,6 +11,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { getUserByCredentials } from '@database/schema/User';
+import Toast from 'react-native-toast-message';
 
 export const IMAGES = {
   appLogo: require('../assets/images/app-logo.png'),
@@ -34,8 +36,17 @@ const SignInScreen = () => {
     resolver: yupResolver(schema),
   });
 
-  const signInClicked = () => {
-    // Need to added - Authentication Logic Here
+const signInClicked = async (data: { email: string; password: string }) => {
+    const user = await getUserByCredentials(data.email, data.password);
+    
+    if (user === null) {
+      Toast.show({
+        type: 'error',
+        text1: 'User doesnt exist',
+      });
+      return;
+    }
+
     navigation.reset({
       index: 0,
       routes: [
@@ -43,7 +54,7 @@ const SignInScreen = () => {
           name: 'MainAppBottomTabs',
           params: {
             screen: 'HomeScreen',
-            params: { userId: 101 },
+            params: { userId: user.id },
           },
         },
       ],
