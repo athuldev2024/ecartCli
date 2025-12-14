@@ -3,7 +3,6 @@ import React from 'react';
 import colors from '@styles/colors';
 import { scale, verticalScale } from 'react-native-size-matters';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@navigation/MainAppStack';
 
 export const IMAGES = {
@@ -14,7 +13,6 @@ export default function HomeHeader() {
   const { logout } = useAuth();
 
   const logOutHandler = async () => {
-    await AsyncStorage.removeItem('userID');
     await logout();
   };
 

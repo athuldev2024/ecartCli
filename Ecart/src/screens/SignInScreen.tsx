@@ -66,7 +66,6 @@ const SignInScreen = () => {
       return;
     }
 
-    await AsyncStorage.setItem('userID', String(user.id));
     await login(String(user.id));
   };
 

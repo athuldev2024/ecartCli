@@ -2,7 +2,6 @@ import React, { useEffect, useState, createContext, useContext } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import ProductScreen from '@screens/ProductScreen';
 import AuthStack from './AuthStack';
 import MainAppBottomTabs from './MainAppBottomTabs';
@@ -28,22 +27,14 @@ export const useAuth = () => {
   return ctx;
 };
 
-/* -------------------------------------------------------------------------- */
-/*                             NAVIGATION STACK                                */
-/* -------------------------------------------------------------------------- */
-
 const Stack = createStackNavigator();
-
-/* -------------------------------------------------------------------------- */
-/*                              AUTH PROVIDER                                  */
-/* -------------------------------------------------------------------------- */
 
 export default function MainAppStack() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const bootstrapAuth = async () => {
+    (async () => {
       try {
         const userId = await AsyncStorage.getItem('userID');
         setIsLoggedIn(!!userId);
@@ -52,9 +43,7 @@ export default function MainAppStack() {
       } finally {
         setIsAuthLoading(false);
       }
-    };
-
-    bootstrapAuth();
+    })();
   }, []);
 
   const login = async (userId: string) => {
@@ -76,7 +65,7 @@ export default function MainAppStack() {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ login, logout }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
           <>
@@ -93,10 +82,6 @@ export default function MainAppStack() {
     </AuthContext.Provider>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                   STYLES                                    */
-/* -------------------------------------------------------------------------- */
 
 const styles = StyleSheet.create({
   loaderContainer: {

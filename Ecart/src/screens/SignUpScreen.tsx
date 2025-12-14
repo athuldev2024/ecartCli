@@ -15,7 +15,6 @@ import { createUser } from '@database/schema/User';
 import Toast from 'react-native-toast-message';
 import { AppDatePickerController } from '@components/AppDatePicker';
 import { AppGenderRadioController } from '@components/AppGenderRadio';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@navigation/MainAppStack';
 
 export const IMAGES = {
@@ -76,8 +75,6 @@ const SignUpScreen = () => {
     const status = await createUser(userData);
 
     if (status.code === 201 && status?.id) {
-      await AsyncStorage.setItem('userID', String(status?.id));
-
       Toast.show({
         type: 'success',
         text1: 'User created',
