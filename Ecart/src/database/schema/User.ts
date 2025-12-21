@@ -8,8 +8,8 @@ export default class User extends Realm.Object {
   email!: string;
   password!: string;
   mobile!: string;
-  dob!: Date; 
-  gender!: 'male' | 'female' | 'other'; 
+  dob!: Date;
+  gender!: 'male' | 'female' | 'other';
 
   static schema = {
     name: 'User',
@@ -20,50 +20,55 @@ export default class User extends Realm.Object {
       email: 'string',
       password: 'string',
       mobile: 'string',
-      dob: 'date',     
-      gender: 'string', 
+      dob: 'date',
+      gender: 'string',
     },
   };
 }
 
-export const createUser = async ({ name, email, password, mobile, dob, gender }: UserType) => {
+export const createUser = async ({
+  name,
+  email,
+  password,
+  mobile,
+  dob,
+  gender,
+}: UserType) => {
   const realm = await openRealm();
 
   try {
-    const existingUser = realm.objects(User.schema.name).filtered("email == $0 OR mobile == $1", email, mobile)
+    const existingUser = realm
+      .objects(User.schema.name)
+      .filtered('email == $0 OR mobile == $1', email, mobile);
 
     if (existingUser.length > 0) {
-      return {code: 409};
+      return { code: 409 };
     }
 
     const id = new Realm.BSON.ObjectId();
 
     realm.write(() => {
-        realm.create(User.schema.name, {
+      realm.create(User.schema.name, {
         id,
         name,
         email,
         password,
         mobile,
         dob,
-        gender
+        gender,
       });
     });
 
-    return {code: 201, id};
-
+    return { code: 201, id };
   } catch (e) {
-    console.error("Error creating user:", e);
-    return {status: 500};
+    console.error('Error creating user:', e);
+    return { status: 500 };
   } finally {
     realm.close();
   }
 };
 
-export const getUserByCredentials = async (
-  email: string,
-  password: string,
-) => {
+export const getUserByCredentials = async (email: string, password: string) => {
   const realm = await openRealm();
 
   try {
@@ -87,6 +92,34 @@ export const getUserByCredentials = async (
     };
   } catch (e) {
     console.error('Error fetching user:', e);
+    return null;
+  } finally {
+    realm.close();
+  }
+};
+
+export const getUserById = async (id: string) => {
+  const realm = await openRealm();
+
+  try {
+    const objectId = new Realm.BSON.ObjectId(id);
+
+    const user = realm.objectForPrimaryKey<User>(User.schema.name, objectId);
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id.toHexString(),
+      name: user.name,
+      email: user.email,
+      mobile: user.mobile,
+      gender: user.gender,
+      dob: user.dob,
+    };
+  } catch (e) {
+    console.error('Error fetching user by id:', e);
     return null;
   } finally {
     realm.close();
