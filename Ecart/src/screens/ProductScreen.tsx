@@ -8,9 +8,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useRoute } from '@react-navigation/native';
 import AppText from '@components/AppText';
 import { Product } from '@types';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import colors from '@styles/colors';
 import AppButton from '@components/AppButton';
+import { setProductQty } from '@store/productSlice';
+import { useDispatch } from 'react-redux';
 
 type Nav = StackNavigationProp<RootStackParamList>;
 
@@ -21,15 +22,25 @@ const BackButton = () => {
     <Pressable
       onPress={() => navigation.goBack()}
       style={({ pressed }) => [
-        { opacity: pressed ? 0.5 : 1, alignSelf: 'flex-start', marginLeft: scale(10) },
+        {
+          opacity: pressed ? 0.5 : 1,
+          alignSelf: 'flex-start',
+          marginLeft: scale(10),
+        },
       ]}
     >
-      <Ionicons name="arrow-back-circle-outline" size={scale(40)} color="black" />
+      <Ionicons
+        name="arrow-back-circle-outline"
+        size={scale(40)}
+        color="black"
+      />
     </Pressable>
   );
 };
 
 const ProductScreen = () => {
+  const dispatch = useDispatch();
+
   const route = useRoute();
   const navigation = useNavigation<Nav>();
 
@@ -40,6 +51,11 @@ const ProductScreen = () => {
 
   const navigateTocart = () => {
     navigation.navigate('MainAppBottomTabs', { screen: 'CartScreen' });
+  };
+
+  const setQtyRedux = (quantitySet: number) => {
+    dispatch(setProductQty({ id: product.id, qty: quantitySet }));
+    setQty(quantitySet);
   };
 
   return (
@@ -59,14 +75,17 @@ const ProductScreen = () => {
 
       <View style={styles.buttonContainer}>
         {qty === 0 ? (
-          <Pressable style={styles.addBtn} onPress={() => setQty(1)}>
+          <Pressable style={styles.addBtn} onPress={() => setQtyRedux(1)}>
             <AppText variant="small" customStyles={styles.btnText}>
-              Add to cart <AntDesign name="shopping-cart" size={scale(32)} />
+              Add to cart
             </AppText>
           </Pressable>
         ) : (
           <View style={styles.row}>
-            <Pressable style={styles.circle} onPress={() => setQty(qty - 1)}>
+            <Pressable
+              style={styles.circle}
+              onPress={() => setQtyRedux(qty - 1)}
+            >
               <AppText variant="small" customStyles={styles.symbol}>
                 −
               </AppText>
@@ -76,7 +95,10 @@ const ProductScreen = () => {
               {qty}
             </AppText>
 
-            <Pressable style={styles.circle} onPress={() => setQty(qty + 1)}>
+            <Pressable
+              style={styles.circle}
+              onPress={() => setQtyRedux(qty + 1)}
+            >
               <AppText variant="small" customStyles={styles.symbol}>
                 +
               </AppText>
@@ -85,7 +107,11 @@ const ProductScreen = () => {
         )}
       </View>
 
-      <AppButton title="Go to cart  🛒" type={'primary'} onPress={navigateTocart} />
+      <AppButton
+        title="Go to cart  🛒"
+        type={'primary'}
+        onPress={navigateTocart}
+      />
     </View>
   );
 };

@@ -8,7 +8,7 @@ export const products = [
     description: `Experience cutting-edge performance with the A18 chip and pro-grade camera system.
 Stunning Super Retina XDR display brings every detail to life.
 Designed for power, style, and next-gen connectivity.`,
-    quantity: 1,
+    quantity: 0,
   },
   {
     id: 2,
@@ -30,13 +30,14 @@ Perfect blend of durability, speed, and portability.`,
     description: `Experience unparalleled performance with the M2 chip and stunning Retina display.
 Designed for professionals seeking power, portability, and premium build quality.
 Perfect for creative workflows, coding, and everyday tasks.`,
-    quantity: 3,
+    quantity: 0,
   },
   {
     id: 5,
     price: 59,
     title: 'Logitech Mouse',
-    imageURL: 'https://media.ldlc.com/r374/ld/products/00/05/88/25/LD0005882564_1.jpg',
+    imageURL:
+      'https://media.ldlc.com/r374/ld/products/00/05/88/25/LD0005882564_1.jpg',
     description: `Ergonomic design for comfortable use during extended sessions.
 High-precision tracking for smooth and accurate cursor control.
 Durable build quality with customizable buttons for enhanced productivity.`,
@@ -71,7 +72,7 @@ export const cartItems = [
     id: 1,
     title: 'iPhone 16 Pro Max',
     price: 1199,
-    quantity: 1,
+    quantity: 0,
     imageURL:
       'https://2b.com.eg/media/catalog/product/cache/661473ab953cdcdf4c3b607144109b90/m/a/ma658.jpg',
   },
@@ -96,7 +97,8 @@ export const cartItems = [
     title: 'Logitech Mouse',
     price: 59,
     quantity: 3,
-    imageURL: 'https://media.ldlc.com/r374/ld/products/00/05/88/25/LD0005882564_1.jpg',
+    imageURL:
+      'https://media.ldlc.com/r374/ld/products/00/05/88/25/LD0005882564_1.jpg',
   },
   {
     id: 5,

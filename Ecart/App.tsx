@@ -7,6 +7,8 @@ import { isAndroid } from '@utils/platform-utils';
 import { NavigationContainer } from '@react-navigation/native';
 import MainAppStack from '@navigation/MainAppStack';
 import Toast from 'react-native-toast-message';
+import { Provider } from 'react-redux';
+import store from '@store';
 
 function AppInner() {
   return (
@@ -22,9 +24,11 @@ function AppInner() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <AppInner />
-      </NavigationContainer>
+      <Provider store={store}>
+        <NavigationContainer>
+          <AppInner />
+        </NavigationContainer>
+      </Provider>
     </SafeAreaProvider>
   );
 }
