@@ -1,23 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, ScrollView, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  ScrollView,
+  Text,
+  Pressable,
+} from 'react-native';
 import { verticalScale, scale } from 'react-native-size-matters';
+import { useSelector } from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import AppText from '@components/AppText';
 import colors from '@styles/colors';
-import { useSelector } from 'react-redux';
-import { Product as ProductType } from '@types';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Cart } from '@types';
+import { Product as ProductType, Cart } from '@types';
 
 const CartItem = ({ item }: { item: Cart }) => {
   return (
     <View style={styles.cartItem}>
-      <View>
-        <Image
-          style={styles.image}
-          source={{
-            uri: item.imageURL,
-          }}
-        />
+      <View style={styles.itemLeft}>
+        <Image style={styles.image} source={{ uri: item.imageURL }} />
         <AppText variant="micro" bold customStyles={{ color: colors.cartText }}>
           {item.title}
         </AppText>
@@ -28,42 +30,51 @@ const CartItem = ({ item }: { item: Cart }) => {
         bold
         customStyles={{ color: colors.textSecondary }}
       >
-        {`₹ ${item.price * item.quantity}`}
+        ₹ {item.price * item.quantity}
       </AppText>
     </View>
   );
 };
 
 const CartScreen = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const productList = useSelector(state => state.products.products);
+  const [cartItems, setCartItems] = useState<Cart[]>([]);
+  const productList = useSelector((state: any) => state.products.products);
 
   useEffect(() => {
     if (productList.length > 0) {
-      const temp = JSON.parse(JSON.stringify(productList)).map(
-        (item: ProductType) => {
-          return {
-            id: item.id,
-            title: item.title,
-            price: item.price,
-            quantity: item.quantity,
-            imageURL: item.imageURL,
-          };
-        },
-      );
+      const temp = productList.map((item: ProductType) => ({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        imageURL: item.imageURL,
+      }));
 
-      setCartItems([...temp]);
+      setCartItems(temp);
     }
   }, [productList]);
 
-  if (!cartItems.some(item => item.quantity > 0)) {
+  const activeItems = cartItems.filter(item => item.quantity > 0);
+
+  const totalAmount = activeItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+
+  const checkOutFuc = () => {
+    console.log('Total amount: ', totalAmount);
+  };
+
+  if (activeItems.length === 0) {
     return (
-      <View
-        style={{
-          ...styles.emptyContainer,
-        }}
-      >
-        <Text style={styles.emptyTitle}>Your cart is empty 🛒</Text>
+      <View style={styles.emptyContainer}>
+        <Ionicons
+          name="cart-outline"
+          size={64}
+          color="#ccc"
+          style={{ marginBottom: 16 }}
+        />
+        <Text style={styles.emptyTitle}>Your cart is empty</Text>
         <Text style={styles.emptySubtitle}>
           Looks like you haven’t added anything yet
         </Text>
@@ -75,11 +86,24 @@ const CartScreen = () => {
     <View style={styles.container}>
       <View style={styles.scrollContainer}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {cartItems.length > 0 &&
-            cartItems
-              .filter(item => item.quantity > 0)
-              .map(item => <CartItem key={item.id} item={item} />)}
+          {activeItems.map(item => (
+            <CartItem key={item.id} item={item} />
+          ))}
         </ScrollView>
+      </View>
+
+      <View style={styles.checkoutContainer}>
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total</Text>
+          <Text style={styles.totalAmount}>₹ {totalAmount}</Text>
+        </View>
+
+        <Pressable onPress={checkOutFuc}>
+          <View style={styles.checkoutButton}>
+            <Ionicons name="lock-closed-outline" size={18} color="#fff" />
+            <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+          </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -92,15 +116,20 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: verticalScale(10),
     paddingHorizontal: scale(10),
+    backgroundColor: '#F5F5F5',
   },
+
   scrollContainer: {
-    height: '60%',
+    flex: 1,
     backgroundColor: colors.white,
+    borderRadius: scale(12),
   },
+
   scrollContent: {
     paddingVertical: verticalScale(10),
-    paddingHorizontal: scale(22),
+    paddingHorizontal: scale(20),
   },
+
   cartItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -110,11 +139,18 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.cartText,
     marginBottom: verticalScale(10),
   },
+
+  itemLeft: {
+    alignItems: 'center',
+  },
+
   image: {
     width: scale(50),
     height: verticalScale(50),
     borderRadius: scale(8),
+    marginBottom: 4,
   },
+
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -135,5 +171,48 @@ const styles = StyleSheet.create({
     color: '#777',
     textAlign: 'center',
     lineHeight: 20,
+  },
+
+  checkoutContainer: {
+    backgroundColor: colors.white,
+    paddingVertical: verticalScale(14),
+    paddingHorizontal: scale(20),
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: verticalScale(12),
+  },
+
+  totalLabel: {
+    fontSize: 16,
+    color: '#444',
+    fontWeight: '500',
+  },
+
+  totalAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
+  },
+
+  checkoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000',
+    height: verticalScale(48),
+    borderRadius: scale(10),
+  },
+
+  checkoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: scale(8),
   },
 });
